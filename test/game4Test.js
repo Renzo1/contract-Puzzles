@@ -6,14 +6,19 @@ describe('Game4', function () {
     const Game = await ethers.getContractFactory('Game4');
     const game = await Game.deploy();
 
-    return { game };
+    const signer = ethers.provider.getSigner(0);
+
+    const signerAddress = await signer.getAddress();
+
+    return {game, signer, signerAddress};
   }
   it('should be a winner', async function () {
-    const { game } = await loadFixture(deployContractAndSetVariables);
+    const {game, signer, signerAddress} = await loadFixture(deployContractAndSetVariables);
 
     // nested mappings are rough :}
+    await game.connect(signer).write(signerAddress);
 
-    await game.win();
+    await game.win(signerAddress);
 
     // leave this assertion as-is
     assert(await game.isWon(), 'You did not win the game');
